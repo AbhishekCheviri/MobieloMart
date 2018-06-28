@@ -210,6 +210,7 @@ public class SignInActivity extends AppCompatActivity implements
             Log.e("Post : ",new PostMan(getApplicationContext()).execute("https://www.nullify.in/mobielo_mart/php/signup" +
                     ".php","name",personName,"email", email,"pass", "password").toString());
             getUsers(email);
+            findViewById(R.id.progress).setVisibility(View.VISIBLE);
         } else {
             // Signed out, show unauthenticated UI.
             updateUI(false);
@@ -274,7 +275,7 @@ public class SignInActivity extends AppCompatActivity implements
 
     private void updateUI(Object o) {
         hideProgressDialog();
-        findViewById(R.id.progress).setVisibility(View.VISIBLE);
+        findViewById(R.id.progress).setVisibility(View.GONE);
         if(o.equals(true)){
 
             prefs.edit().putBoolean("SIGNEDIN",true).commit();

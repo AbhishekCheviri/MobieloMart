@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#FFFFFF</color>
+    <color name="colorPrimaryDark">#cccccc</color>
+    <color name="colorAccent">#F78622</color>
+    <color name="lightwhite">#e8e8e8</color>
+    <color name="searchbgcolor">#f3f3f5</color>
+    <color name="material_light_primary_text">#DE000000</color>
+    <color name="material_light_hint_text">#61000000</color>
+    <color name="material_light_active_icon">#8A000000</color>
+    <color name="material_ripple_light">#1F000000</color>
+    <color name="divider_color">#1F000000</color>
+    <color name="active_icon_color">#8A000000</color>
+    <color name="cards_and_dialogs_color">@android:color/white</color>
+    <color name="quantum_grey_600">#757575</color>
+    <color name="c1">#ff4848</color>
+    <color name="c2">#ff00f7</color>
+    <color name="c3">#030dbf</color>
+    <color name="c4">#13ffd0</color>
+    <color name="offer_text_color">#00c853</color>
+    <color name="offer_original_text_color">#bdbdbd</color>
+    <color name="unselecteddot">#e0e0e0</color>
+    <color name="selecteddot">#9e9e9e</color>
+
+    <color name="rating_bad">#f44336</color>
+    <color name="rating_good">#4caf50</color>
+    <color name="rating_avg">#ff9800</color>
+    <color name="tab_selected_indicator">#FFFFFF</color>
+
+    <color name="SigninPrimaryDark">#f9c700</color>
+
+</resources>

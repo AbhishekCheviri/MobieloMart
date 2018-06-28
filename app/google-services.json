@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "902768713721",
+    "firebase_url": "https://mobielomart-ec065.firebaseio.com",
+    "project_id": "mobielomart-ec065",
+    "storage_bucket": "mobielomart-ec065.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:902768713721:android:7bba34b01f93b51a",
+        "android_client_info": {
+          "package_name": "in.nullify.mobielomart"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "902768713721-718fvm58c4e5qed6s9npnjhvk28tr6mn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "in.nullify.mobielomart",
+            "certificate_hash": "03c81bdb7329f1b0a2824a4315186e6a9a173270"
+          }
+        },
+        {
+          "client_id": "902768713721-b4gau252m9kminifg293og0va5vsu15n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCNMZg_HKJIFfj_VTAV_l7guLM9VYj3Gss"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "902768713721-b4gau252m9kminifg293og0va5vsu15n.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

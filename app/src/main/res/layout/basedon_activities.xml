@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/interest_cont"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:visibility="gone"
+    app:cardBackgroundColor="@android:color/white"
+    app:cardElevation="1dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/shead2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="20dp"
+            android:text="@string/suggested_for_you"
+            android:textColor="@android:color/black"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/sshead"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/shead2"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="5dp"
+            android:text="Similar to Items You Viewed"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/interest_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="20dp"
+            style="?android:attr/borderlessButtonStyle"
+            android:text="View All"
+            android:layout_marginTop="10dp"
+            android:textSize="17sp"
+            android:textColor="@color/colorAccent" />
+
+        <ImageView
+            android:id="@+id/line"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/sshead"
+            android:layout_marginTop="5dp"
+            android:background="@color/lightwhite" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/suggestion_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
+            android:layout_below="@+id/line"
+            android:background="@color/lightwhite" />
+    </RelativeLayout>
+</android.support.v7.widget.CardView>

@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">Mobielo Mart</string>
+    <string name="search">search</string>
+    <string name="searchHint">search for product brands and more</string>
+    <string name="item_1">Categories</string>
+    <string name="item_2">Home</string>
+    <string name="item_3">Account</string>
+    <string name="best_offers">Best Offers</string>
+    <string name="new_arrivals">NEW ARRIVALS</string>
+    <string name="suggested_for_you">You May Like</string>
+    <string name="featured_products">Featured Products</string>
+    <string name="looks_like_you_are_not_connected_to_the_internet">Looks like you are not connected to the internet!</string>
+    <string name="reconnect">Reconnect</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+
+    <array name="account_list_array">
+        <item>My Orders</item>
+        <item>My Wishlist</item>
+        <item>Track Order</item>
+        <item>Edit Account</item>
+        <item>Address Book</item>
+        <item>Logout</item>
+    </array>
+</resources>

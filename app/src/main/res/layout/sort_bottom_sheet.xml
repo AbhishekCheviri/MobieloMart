@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sort By"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"/>
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/lightwhite"/>
+    <RadioGroup
+
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="30dp"
+        android:layout_marginStart="20dp"
+        android:id="@+id/radio_sort"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <RadioButton
+            android:buttonTint="@color/colorAccent"
+            android:paddingStart="10dp"
+            android:id="@+id/sort_rel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Relevance" />
+
+        <RadioButton
+            android:buttonTint="@color/colorAccent"
+            android:paddingStart="10dp"
+            android:id="@+id/sort_new"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Newest First" />
+
+        <RadioButton
+            android:buttonTint="@color/colorAccent"
+            android:paddingStart="10dp"
+            android:id="@+id/sort_lh"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Price -- Low to High" />
+
+        <RadioButton
+            android:buttonTint="@color/colorAccent"
+            android:paddingStart="10dp"
+            android:id="@+id/sort_hl"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Price -- high to low" />
+
+    </RadioGroup>
+</LinearLayout>

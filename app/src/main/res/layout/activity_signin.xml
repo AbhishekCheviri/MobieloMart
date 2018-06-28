@@ -45,7 +45,7 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_margin="10dp"
-            android:src="@drawable/mobi_logo" />
+            android:src="@drawable/mobeilologohome" />
 
         <ScrollView
             android:layout_width="match_parent"
@@ -172,6 +172,24 @@
             </LinearLayout>
         </ScrollView>
     </RelativeLayout>
-
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:id="@+id/progress">
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/black"
+            android:alpha="0.3"
+            />
+        <ProgressBar
+            android:layout_width="50dp"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:layout_height="50dp"
+            android:indeterminateTint="@color/colorAccent" />
+    </RelativeLayout>
 
 </RelativeLayout>

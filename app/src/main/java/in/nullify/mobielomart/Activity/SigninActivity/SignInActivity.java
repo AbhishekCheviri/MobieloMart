@@ -66,10 +66,9 @@ public class SignInActivity extends AppCompatActivity implements
     private String name;
     private ArrayAdapter adapter;
     private GoogleSignInClient mGoogleSignInClient;
-    SharedPreferences sharedPref;
-    SharedPreferences.Editor editor;
-
-
+    private SharedPreferences sharedPref;
+    private SharedPreferences.Editor editor;
+    private EditText SignupEmail,SignupPassword;
     private GoogleApiClient mGoogleApiClient;
     private ProgressDialog mProgressDialog;
 
@@ -125,8 +124,8 @@ public class SignInActivity extends AppCompatActivity implements
         });
 
 
-        final EditText SignupEmail = (EditText) findViewById(R.id.et_signin_email);
-        final EditText SignupPassword = (EditText) findViewById(R.id.et_signin_pwd);
+        SignupEmail = (EditText) findViewById(R.id.et_signin_email);
+        SignupPassword = (EditText) findViewById(R.id.et_signin_pwd);
         Button SignupButton = (Button) findViewById(R.id.btn_signin);
 
         SignupButton.setOnClickListener(new View.OnClickListener() {
@@ -211,7 +210,6 @@ public class SignInActivity extends AppCompatActivity implements
             Log.e("Post : ",new PostMan(getApplicationContext()).execute("https://www.nullify.in/mobielo_mart/php/signup" +
                     ".php","name",personName,"email", email,"pass", "password").toString());
             getUsers(email);
-
         } else {
             // Signed out, show unauthenticated UI.
             updateUI(false);
@@ -276,6 +274,7 @@ public class SignInActivity extends AppCompatActivity implements
 
     private void updateUI(Object o) {
         hideProgressDialog();
+        findViewById(R.id.progress).setVisibility(View.VISIBLE);
         if(o.equals(true)){
 
             prefs.edit().putBoolean("SIGNEDIN",true).commit();
@@ -289,7 +288,7 @@ public class SignInActivity extends AppCompatActivity implements
     public class Signup extends AsyncTask<String, Void, String> {
 
         protected void onPreExecute() {
-
+            findViewById(R.id.progress).setVisibility(View.VISIBLE);
         }
 
         protected String doInBackground(String... arg0) {
@@ -356,7 +355,7 @@ public class SignInActivity extends AppCompatActivity implements
                 Toast.makeText(getApplicationContext(), "Incorrect Password", Toast.LENGTH_LONG).show();
             }
             else {
-                Toast.makeText(getApplicationContext(),"Login Success",Toast.LENGTH_LONG).show();
+                getUsers(SignupEmail.getText().toString());
             }
 
         }

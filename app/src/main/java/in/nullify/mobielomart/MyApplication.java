@@ -9,9 +9,9 @@ import com.google.firebase.FirebaseApp;
  * Created by Abhishekpalodath on 03-07-2018.
  */
 
-public class MobieloMart extends Application {
+public class MyApplication extends Application {
 
-    private static MobieloMart mInstance;
+    private static MyApplication mInstance;
 
     @Override
     public void onCreate() {

@@ -223,7 +223,11 @@ public class SearchResultActivity extends AppCompatActivity implements BottomShe
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         // error
-                        Log.d("Error.Response", error.getMessage());
+                        try {
+                            Log.d("Error.Response", error.getMessage());
+                        }catch (Exception e){
+
+                        }
                     }
                 }
         ) {
@@ -281,12 +285,12 @@ public class SearchResultActivity extends AppCompatActivity implements BottomShe
                 .build();
 
         User api = retrofit.create(User.class);
-        Call<List<Users>> call = api.getUser(account.getEmail());
+        Call<List<Users>> call = api.getUser(account.getEmail(),"0");
         call.enqueue(new Callback<List<Users>>() {
             @Override
             public void onResponse(Call<List<Users>> call, Response<List<Users>> response) {
                 List<Users> list = response.body();
-                userid = list.get(0).getP_id();
+                userid = list.get(0).getId();
                 addSearched();
             }
 

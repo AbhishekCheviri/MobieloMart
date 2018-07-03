@@ -17,5 +17,5 @@ public interface User {
 
     @FormUrlEncoded
     @POST("mobielo_mart/php/homepage/getUser.php")
-    Call<List<Users>> getUser(@Field("email") String email);
+    Call<List<Users>> getUser(@Field("email") String email,@Field("id") String id);
 }

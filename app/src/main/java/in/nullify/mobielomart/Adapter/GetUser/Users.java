@@ -8,17 +8,29 @@ public class Users {
 
     private String id;
     private String name;
+    private String email;
+    private String img;
 
-    public Users (String p_id,String p_name)
-    {
-        this.id = p_id;
-        this.name = p_name;
+    public Users(String id, String name, String email, String img) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.img = img;
     }
-    public String getP_id() {
+
+    public String getId() {
         return id;
     }
 
-    public String getP_name() {
+    public String getName() {
         return name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getImg() {
+        return img;
     }
 }

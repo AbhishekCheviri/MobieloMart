@@ -31,13 +31,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.kekstudio.dachshundtablayout.DachshundTabLayout;
 
 import org.json.JSONArray;
@@ -50,16 +57,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import in.nullify.mobielomart.Activity.AddressActivity.AddressActivity;
 import in.nullify.mobielomart.Activity.BestOffers.BestOfferActivity;
+import in.nullify.mobielomart.Activity.EditAccountActivity.EditAccountActivity;
 import in.nullify.mobielomart.Activity.FeaturedProducts.FeaturedProducts;
 import in.nullify.mobielomart.Activity.InterestActivity.InterestActivity;
 import in.nullify.mobielomart.Activity.NewArrivalActivity.NewArivalActivity;
+import in.nullify.mobielomart.Activity.OrdersActivity.OrdersActivity;
 import in.nullify.mobielomart.Activity.ProductActivity.ProductActivity;
 import in.nullify.mobielomart.Activity.RecentView.RecentlyViewedActivity;
 import in.nullify.mobielomart.Activity.SearchResult.SearchResultActivity;
+import in.nullify.mobielomart.Activity.SigninActivity.SignInActivity;
+import in.nullify.mobielomart.Activity.TrackActivity.TrackActivity;
+import in.nullify.mobielomart.Activity.WishListActivity.WishlistActivity;
 import in.nullify.mobielomart.Adapter.FeaturedProduct.FeaturedApi;
 import in.nullify.mobielomart.Adapter.FeaturedProduct.FeaturedHome;
 import in.nullify.mobielomart.Adapter.FeaturedProduct.HomeFeaturedAdapter;
+import in.nullify.mobielomart.Adapter.GetUser.User;
+import in.nullify.mobielomart.Adapter.GetUser.Users;
 import in.nullify.mobielomart.Adapter.HomeCarousel.CardFragmentPagerAdapter;
 import in.nullify.mobielomart.Adapter.HomeCarousel.Carousel;
 import in.nullify.mobielomart.Adapter.HomeCarousel.CarouselApi;
@@ -96,6 +111,9 @@ public class HomeActivity extends AppCompatActivity {
     private SearchView seach_prod;
     private Toolbar toolbar;
     private AppBarLayout home_appbar;
+
+    private TextView user_name,user_email;
+    private ImageView user_img;
 
     private MenuItem searchItem;
     private Button searchOpen;
@@ -145,7 +163,7 @@ public class HomeActivity extends AppCompatActivity {
     private ArrayList<RecentView> recentList = new ArrayList<>();
     private ArrayList<String> catName = new ArrayList<>();
     private RecentViewAdapter recentListAdapter;
-
+    private GoogleSignInAccount account;
 
     private String c1,c2;
     @Override
@@ -155,14 +173,68 @@ public class HomeActivity extends AppCompatActivity {
 
         home_appbar = (AppBarLayout) findViewById(R.id.home_appbar);
         toolbar = (Toolbar) findViewById(R.id.home_toolbar);
+        account = GoogleSignIn.getLastSignedInAccount(getApplicationContext());
+        LinearLayout llsignin=(LinearLayout)findViewById(R.id.ll_signin);
+        ListView lv_account=(ListView) findViewById(R.id.lv_account);
+        Button btn_acc_signinup=(Button) findViewById(R.id.btn_acc_signinup);
+        user_img = (ImageView) findViewById(R.id.user_img);
+        user_name = (TextView) findViewById(R.id.user_name);
+        user_email = (TextView) findViewById(R.id.user_email);
 
         View footerView = ((LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.sug_footer, null, false);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        if (prefs.getBoolean("SIGNEDIN", false))
+        if (prefs.getBoolean("SIGNEDIN", false)){
             user_id = prefs.getString("USERID", "0");
+            llsignin.setVisibility(LinearLayout.GONE);
+            findViewById(R.id.user_info).setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            findViewById(R.id.user_info).setVisibility(View.GONE);
+            llsignin.setVisibility(LinearLayout.VISIBLE);
+        }
 
+        btn_acc_signinup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                prefs.edit().remove("SIGNEDIN").commit();
+                Intent intent=new Intent(getApplicationContext(),SignInActivity.class);
+                startActivity(intent);
+            }
+        });
+        lv_account.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if(!prefs.getBoolean("SIGNEDIN", false)) {
+                    Toast.makeText(getApplicationContext(),"Sign in/Sign up to continue",Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    switch (position){
+                        case 0:Intent intent=new Intent(getApplicationContext(),OrdersActivity.class);
+                            startActivity(intent);
+                            break;
+                        case 1:intent=new Intent(getApplicationContext(),WishlistActivity.class);
+                            startActivity(intent);
+                            break;
+                        case 2:intent=new Intent(getApplicationContext(),TrackActivity.class);
+                            startActivity(intent);
+                            break;
+                        case 3:intent=new Intent(getApplicationContext(),EditAccountActivity.class);
+                            startActivity(intent);
+                            break;
+                        case 4:intent=new Intent(getApplicationContext(), AddressActivity.class);
+                            startActivity(intent);
+                            break;
+                        case 5://Logout Code
+                            break;
+                    }
+                }
+
+            }
+        });
         Toolbar toolbar1 = (Toolbar) findViewById(R.id.toolbar);
         toolbar1.inflateMenu(R.menu.menu_product);
         toolbar1.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
@@ -350,6 +422,32 @@ public class HomeActivity extends AppCompatActivity {
 
         loaddatas();
     }
+
+    private void getUsers(final String id) {
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(CarouselApi.BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        User api = retrofit.create(User.class);
+        Call<List<Users>> call = api.getUser("0",id);
+        call.enqueue(new Callback<List<Users>>() {
+            @Override
+            public void onResponse(Call<List<Users>> call, Response<List<Users>> response) {
+                List<Users> list = response.body();
+                user_name.setText(list.get(0).getName());
+                user_email.setText(list.get(0).getEmail());
+                Glide.with(getApplicationContext()).load(account.getPhotoUrl()).apply(RequestOptions.circleCropTransform()).into(user_img);
+            }
+
+            @Override
+            public void onFailure(Call<List<Users>> call, Throwable t) {
+            }
+        });
+
+    }
+
     public static boolean isNetworkAvailable(Context context) {
         ConnectivityManager cm =
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -434,6 +532,13 @@ public class HomeActivity extends AppCompatActivity {
                 }
             });
             t4.start();
+            Thread t7 = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    getUsers(user_id);
+                }
+            });
+            t7.start();
 
         }
     }
@@ -845,7 +950,7 @@ public class HomeActivity extends AppCompatActivity {
         seach_prod.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-
+                Log.d("query",query);
                 final Intent intent = new Intent(getApplicationContext(), SearchResultActivity.class);
                 intent.putExtra("search", query);
                 suggestion_searched.removeFooterView(footerView);

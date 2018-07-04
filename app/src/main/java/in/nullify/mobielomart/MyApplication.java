@@ -18,7 +18,7 @@ public class MyApplication extends Application {
         super.onCreate();
         mInstance = this;
         try {
-            FirebaseApp.initializeApp(this);
+            FirebaseApp.initializeApp(getApplicationContext());
         } catch (Exception e) {
         }
     }

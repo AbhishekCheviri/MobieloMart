@@ -45,6 +45,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.firebase.auth.FirebaseAuth;
 import com.kekstudio.dachshundtablayout.DachshundTabLayout;
 
 import org.json.JSONArray;
@@ -163,17 +164,16 @@ public class HomeActivity extends AppCompatActivity {
     private ArrayList<RecentView> recentList = new ArrayList<>();
     private ArrayList<String> catName = new ArrayList<>();
     private RecentViewAdapter recentListAdapter;
-    private GoogleSignInAccount account;
+    private FirebaseAuth mAuth;
 
     private String c1,c2;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-
+        mAuth = FirebaseAuth.getInstance();
         home_appbar = (AppBarLayout) findViewById(R.id.home_appbar);
         toolbar = (Toolbar) findViewById(R.id.home_toolbar);
-        account = GoogleSignIn.getLastSignedInAccount(getApplicationContext());
         LinearLayout llsignin=(LinearLayout)findViewById(R.id.ll_signin);
         ListView lv_account=(ListView) findViewById(R.id.lv_account);
         Button btn_acc_signinup=(Button) findViewById(R.id.btn_acc_signinup);
@@ -185,8 +185,8 @@ public class HomeActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        if (prefs.getBoolean("SIGNEDIN", false)){
-            user_id = prefs.getString("USERID", "0");
+        if (!prefs.getBoolean("SKIP", false)){
+            user_id = "0";
             llsignin.setVisibility(LinearLayout.GONE);
             findViewById(R.id.user_info).setVisibility(View.VISIBLE);
         }
@@ -200,7 +200,7 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                prefs.edit().remove("SIGNEDIN").commit();
+                prefs.edit().remove("SKIP").commit();
                 Intent intent=new Intent(getApplicationContext(),SignInActivity.class);
                 startActivity(intent);
             }
@@ -419,11 +419,27 @@ public class HomeActivity extends AppCompatActivity {
         recentlyViewd.setLayoutManager(offerlayoumanager1);
         recentListAdapter = new RecentViewAdapter(HomeActivity.this, recentList,null);
         recentlyViewd.setAdapter(recentListAdapter);
-
-        loaddatas();
+        if (mAuth.getCurrentUser() == null)
+            loaddatas();
+        else
+            getUsers();
     }
 
-    private void getUsers(final String id) {
+    private void getUsers() {
+
+        if (!isNetworkAvailable(getApplicationContext())) {
+            findViewById(R.id.noconnection).setVisibility(View.VISIBLE);
+            findViewById(R.id.reconnect).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getUsers();
+        }
+            });
+            findViewById(R.id.home_progress).setVisibility(View.GONE);
+        } else {
+            findViewById(R.id.home_progress).setVisibility(View.VISIBLE);
+            findViewById(R.id.noconnection).setVisibility(View.GONE);
+        }
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(CarouselApi.BASE_URL)
@@ -431,18 +447,21 @@ public class HomeActivity extends AppCompatActivity {
                 .build();
 
         User api = retrofit.create(User.class);
-        Call<List<Users>> call = api.getUser("0",id);
+        Call<List<Users>> call = api.getUser(mAuth.getCurrentUser().getEmail(),"0");
         call.enqueue(new Callback<List<Users>>() {
             @Override
             public void onResponse(Call<List<Users>> call, Response<List<Users>> response) {
                 List<Users> list = response.body();
+                user_id = list.get(0).getId();
                 user_name.setText(list.get(0).getName());
                 user_email.setText(list.get(0).getEmail());
-                Glide.with(getApplicationContext()).load(account.getPhotoUrl()).apply(RequestOptions.circleCropTransform()).into(user_img);
+                Glide.with(getApplicationContext()).load(mAuth.getCurrentUser().getPhotoUrl()).apply(RequestOptions.circleCropTransform()).into(user_img);
+                loaddatas();
             }
 
             @Override
             public void onFailure(Call<List<Users>> call, Throwable t) {
+                getUsers();
             }
         });
 
@@ -532,13 +551,6 @@ public class HomeActivity extends AppCompatActivity {
                 }
             });
             t4.start();
-            Thread t7 = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    getUsers(user_id);
-                }
-            });
-            t7.start();
 
         }
     }

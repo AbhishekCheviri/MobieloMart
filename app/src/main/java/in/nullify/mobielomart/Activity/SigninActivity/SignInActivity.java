@@ -23,11 +23,13 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.OptionalPendingResult;
 import com.google.android.gms.common.api.ResultCallback;
@@ -81,19 +83,14 @@ public class SignInActivity extends AppCompatActivity implements
     private static final int RC_SIGN_IN = 007;
     private String name;
     private ArrayAdapter adapter;
-    private GoogleSignInClient mGoogleSignInClient;
-    private SharedPreferences sharedPref;
-    private SharedPreferences.Editor editor;
-    private EditText SignupEmail,SignupPassword;
-    private GoogleApiClient mGoogleApiClient;
+    private EditText SigninEmail,SigninPassword;
     private ProgressDialog mProgressDialog;
     private URL url;
-    private Button btnSignIn,Skip;
+    private Button gglSignIn,Skip;
     private FirebaseAuth mAuth;
+    private GoogleSignInClient mGoogleSignInClient;
 
     private SharedPreferences prefs;
-
-    private String userid="0";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,54 +100,46 @@ public class SignInActivity extends AppCompatActivity implements
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
-        if (prefs.contains("SIGNEDIN"))
-        {
-            Intent intent=new Intent(getApplicationContext(),HomeActivity.class);
-            startActivity(intent);
-            SignInActivity.this.finish();
-        }
 
-        btnSignIn = findViewById(R.id.btn_signin_google);
+        gglSignIn = findViewById(R.id.btn_signin_google);
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestEmail().requestId().requestProfile()
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
                 .build();
 
         Skip = (Button) findViewById(R.id.tv_skip);
         Skip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                prefs.edit().putString("USERID",userid).commit();
-                prefs.edit().putBoolean("SIGNEDIN",false).commit();
+                prefs.edit().putBoolean("SKIP",true).commit();
                 Intent intent=new Intent(getApplicationContext(),HomeActivity.class);
                 startActivity(intent);
                 SignInActivity.this.finish();
             }
         });
 
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this, this)
-                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
         // Customizing G+ button
-        btnSignIn.setOnClickListener(new View.OnClickListener() {
+        gglSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                        signIn();
+                        googleSignIn();
             }
         });
 
 
-        SignupEmail = (EditText) findViewById(R.id.et_signin_email);
-        SignupPassword = (EditText) findViewById(R.id.et_signin_pwd);
+        SigninEmail = (EditText) findViewById(R.id.et_signin_email);
+        SigninPassword = (EditText) findViewById(R.id.et_signin_pwd);
         Button SignupButton = (Button) findViewById(R.id.btn_signin);
 
         SignupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(SignupEmail.getText().toString().contains("@")) {
-                    new Signup().execute(SignupEmail.getText().toString(), SignupPassword.getText().toString(), null, "Result");
+                if(SigninEmail.getText().toString().contains("@")) {
+                    signIn(SigninEmail.getText().toString(),SigninPassword.getText().toString());
+                    findViewById(R.id.progress).setVisibility(View.VISIBLE);
                 }
                 else {
                     Toast.makeText(getApplicationContext(),"Invalid Email",Toast.LENGTH_LONG).show();
@@ -158,39 +147,38 @@ public class SignInActivity extends AppCompatActivity implements
             }
         });
     }
-    private void signIn() {
 
-        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
-        startActivityForResult(signInIntent, RC_SIGN_IN);
+    private void signIn(String email,String password) {
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d(TAG, "signInWithEmail:success");
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            updateUI(user);
+                            findViewById(R.id.progress).setVisibility(View.GONE);
+                        } else {
+                            findViewById(R.id.progress).setVisibility(View.GONE);
+                            // If sign in fails, display a message to the user.
+                            Log.w(TAG, "signInWithEmail:failure", task.getException());
+                            Toast.makeText(SignInActivity.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                            updateUI(null);
+                        }
+
+                        // ...
+                    }
+                });
+
     }
 
+    private void googleSignIn() {
 
-    private void getUsers(final String email) {
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(CarouselApi.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        User api = retrofit.create(User.class);
-        Call<List<Users>> call = api.getUser(email,"0");
-        call.enqueue(new Callback<List<Users>>() {
-            @Override
-            public void onResponse(Call<List<Users>> call, Response<List<Users>> response) {
-                List<Users> list = response.body();
-                userid = list.get(0).getId();
-                prefs.edit().putString("USERID",userid).commit();
-                if (!(userid.equals("0")))
-                    updateUI(true);
-                else
-                    Toast.makeText(getApplicationContext(),"Invalid email",Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onFailure(Call<List<Users>> call, Throwable t) {
-                            }
-        });
-
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
     @Override
@@ -201,40 +189,29 @@ public class SignInActivity extends AppCompatActivity implements
 
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
-            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            handleSignInResult(result);
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            try {
+                // Google Sign In was successful, authenticate with Firebase
+                findViewById(R.id.progress).setVisibility(View.VISIBLE);
+                GoogleSignInAccount account = task.getResult(ApiException.class);
+                firebaseAuthWithGoogle(account);
+                String personName = account.getDisplayName();
+                String email = account.getEmail();
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(SignInActivity.this);
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putString("CallerPM", "signinactivity");
+                editor.commit();
+                Log.e("Post : ",new PostMan(getApplicationContext()).execute("https://www.nullify.in/mobielo_mart/php/signup" +
+                        ".php","name",personName,"email", email,"pass", "password").toString());
+            } catch (ApiException e) {
+                // Google Sign In failed, update UI appropriately
+                Log.w(TAG, "Google sign in failed", e);
+                // [START_EXCLUDE]
+                updateUI(null);
+                // [END_EXCLUDE]
+            }
         }
     }
-
-    private void handleSignInResult(GoogleSignInResult result) {
-        Log.d(TAG, "handleSignInResult:" + result.isSuccess());
-        if (result.isSuccess()) {
-            // Signed in successfully, show authenticated UI.
-            GoogleSignInAccount acct = result.getSignInAccount();
-
-            Log.e(TAG, "display name: " + acct.getDisplayName());
-            firebaseAuthWithGoogle(acct);
-            String personName = acct.getDisplayName();
-            String personPhotoUrl = acct.getPhotoUrl().toString();
-            String email = acct.getEmail();
-            Log.e(TAG, "Name: " + personName + ", email: " + email
-                    + ", Image: " + personPhotoUrl);
-
-            //new SignUp().execute(personName, email, "password", null, "Result");
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(SignInActivity.this);
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putString("CallerPM", "signinactivity");
-            editor.commit();
-            Log.e("Post : ",new PostMan(getApplicationContext()).execute("https://www.nullify.in/mobielo_mart/php/signup" +
-                    ".php","name",personName,"email", email,"pass", "password").toString());
-            getUsers(email);
-            findViewById(R.id.progress).setVisibility(View.VISIBLE);
-        } else {
-            // Signed out, show unauthenticated UI.
-            updateUI(false);
-        }
-    }
-
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
         Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
 
@@ -265,6 +242,10 @@ public class SignInActivity extends AppCompatActivity implements
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
         updateUI(currentUser);
+        if (prefs.getBoolean("SKIP",false)){
+            Intent intent=new Intent(getApplicationContext(),HomeActivity.class);
+            startActivity(intent);
+        }
     }
 
     public void SignUpResult(String string){
@@ -296,12 +277,10 @@ public class SignInActivity extends AppCompatActivity implements
         }
     }
 
-    private void updateUI(Object o) {
+    private void updateUI(FirebaseUser user) {
         hideProgressDialog();
         findViewById(R.id.progress).setVisibility(View.GONE);
-        if(o.equals(true)){
-
-            prefs.edit().putBoolean("SIGNEDIN",true).commit();
+        if(!(user == null)){
             Intent intent=new Intent(this.getApplicationContext(),HomeActivity.class);
             startActivity(intent);
             this.finish();
@@ -379,7 +358,7 @@ public class SignInActivity extends AppCompatActivity implements
                 Toast.makeText(getApplicationContext(), "Incorrect Password", Toast.LENGTH_LONG).show();
             }
             else {
-                getUsers(SignupEmail.getText().toString());
+
             }
 
         }
